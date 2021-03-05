@@ -2,15 +2,14 @@ const functions = require("firebase-functions");
 const admin = require('firebase-admin');
 
 admin.initializeApp()
-// // Create and Deploy Your First Cloud Functions
-// // https://firebase.google.com/docs/functions/write-firebase-functions
-//
-exports.helloWorld = functions.https.onRequest((request, response) => {
-  functions.logger.info("Hello logs!", {structuredData: true});
-  response.send("Hello from Firebase!");
-});
 
-exports.getQuips = functions.https.onRequest((req, res) => {
+const express = require('express');
+const app = express();
+
+//@route:   GET api/quips
+//@desc:    Get all quips
+//@access:  Public
+app.get('/quips', (req,res)=>{
     admin.firestore().collection('Quips').get()
         .then(data => {
             let quips = [];
@@ -20,12 +19,12 @@ exports.getQuips = functions.https.onRequest((req, res) => {
             return res.json(quips);
         })
         .catch(err => console.error(err));
-});
+})
 
-exports.createQuip = functions.https.onRequest((req, res) => {
-    if(req.method !== 'POST'){
-        return res.status(400).json({ error: 'Method not allowed'});
-    }
+//@route:   POST api/quips
+//@desc:    create a quip
+//@access:  Public
+app.post('/quips', (req,res)=>{
     const {body, userHandle} = req.body;
     const newQuip = {
         body,
@@ -43,3 +42,6 @@ exports.createQuip = functions.https.onRequest((req, res) => {
             console.error(err);
         })
 })
+
+
+exports.api = functions.https.onRequest(app);
