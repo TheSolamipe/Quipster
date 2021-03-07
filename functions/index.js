@@ -10,11 +10,17 @@ const app = express();
 //@desc:    Get all quips
 //@access:  Public
 app.get('/quips', (req,res)=>{
-    admin.firestore().collection('Quips').get()
+    admin.firestore().collection('Quips')
+        .orderBy('createdAt', 'desc').get()
         .then(data => {
             let quips = [];
             data.forEach(doc => {
-                quips.push(doc.data());
+                quips.push({
+                    quipId: doc.id,
+                    body: doc.data().body,
+                    userHandle: doc.data().userHandle,
+                    createdAt: doc.data().createdAt
+                });
             });
             return res.json(quips);
         })
@@ -29,7 +35,7 @@ app.post('/quips', (req,res)=>{
     const newQuip = {
         body,
         userHandle,
-        createdAt: admin.firestore.Timestamp.fromDate(new Date())
+        createdAt: new Date().toISOString()
     };
 
     admin.firestore()
