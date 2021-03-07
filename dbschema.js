@@ -1,5 +1,5 @@
 let db = [
-    quips: [
+    quips : [
         {
             userHandle: 'user',
             body: 'this is the quip body',
