@@ -10,5 +10,3 @@ isEmail : (email)=>{
 }
 
 }
-// module.exports = isEmail;
-// module.exports = isEmpty;

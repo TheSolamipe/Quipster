@@ -1,4 +1,4 @@
-let db = [
+let db = {
     quips : [
         {
             userHandle: 'user',
@@ -8,4 +8,4 @@ let db = [
             commentCount: 3
         }
     ]
-]
+}

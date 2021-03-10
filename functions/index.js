@@ -36,14 +36,49 @@ app.get('/quips', (req,res)=>{
         .catch(err => console.error(err));
 })
 
+//Verifying and authenticating logged in user
+const FBAuth = (req,res,next)=>{
+    let idToken;
+    if(req.headers.authorization && req.headers.authorization.startsWith('Bearer ')){
+        idToken = req.headers.authorization.split('Bearer ')[1]; //getting authorization token
+    }else {
+        console.error('No token found')
+        return res.status(403).json({ error: 'Unauthorized'});
+    }
+
+    // verifying user with token
+    admin.auth().verifyIdToken(idToken)
+        .then(decodedToken => {
+            req.user = decodedToken;
+            console.log(decodedToken);
+            return db.collection('users')
+                .where('userId', '==', req.user.uid)
+                .limit(1)
+                .get();
+        })
+        .then(data => {
+            req.user.userHandle = data.docs[0].data().userHandle;
+            return next();
+        })
+        .catch(err =>{
+            console.error('Error while verifying token', err)
+            return res.status(403).json(err);
+        })
+}
+
+
 //@route:   POST api/quips
 //@desc:    create a quip
 //@access:  Public
-app.post('/quips', (req,res)=>{
-    const {body, userHandle} = req.body;
+app.post('/quips', FBAuth, (req,res)=>{
+    const {body} = req.body;
+    if(body.trim() === ""){
+        return res.status(400).json({ body: 'Body must not be empty'});
+    }
+
     const newQuip = {
         body,
-        userHandle,
+        userHandle: req.user.userHandle,
         createdAt: new Date().toISOString()
     };
 
@@ -80,10 +115,10 @@ app.post('/signup', (req,res)=>{
     if(Object.keys(errors).length > 0) return res.status(400).json(errors);
     //Todo: validate data
     let token, userId;
-    db.doc(`/users/${newUser.handle}`).get()
+    db.doc(`/users/${newUser.userHandle}`).get()
         .then(doc => {
             if(doc.exists){
-                return res.status(400).json({ handle: 'this handle is already taken'});
+                return res.status(400).json({ userHandle: 'this handle is already taken'});
             }else{
                 return firebase.auth()
                         .createUserWithEmailAndPassword(newUser.email, newUser.password)
