@@ -4,7 +4,7 @@ const app = require('express')();
 
 // importing handlers functions
 const { getAllQuips, postQuip } = require("./handlers/quips");
-const { signUp, logIn } = require("./handlers/users");
+const { signUp, logIn, uploadImage } = require("./handlers/users");
 
 // importing user authentication function
 const {FBAuth} = require('./helpers/userAuthenticator');
@@ -20,6 +20,11 @@ app.post('/signup', signUp);
 //@desc:    Log in
 //@access:  Public
 app.post('/login', logIn)
+
+//@route:   POST api/user/image
+//@desc:    Upload user image
+//@access:  Private
+app.post('/user/image', FBAuth, uploadImage)
 
 //Quip's routes
 
