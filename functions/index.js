@@ -3,7 +3,7 @@ const functions = require("firebase-functions");
 const app = require('express')();
 
 // importing handlers functions
-const { getAllQuips, postQuip } = require("./handlers/quips");
+const { getAllQuips, postQuip, getQuip, commentOnQuip } = require("./handlers/quips");
 const { signUp, logIn, uploadImage, addUserDetails, getAuthenticatedUser } = require("./handlers/users");
 
 // importing user authentication function
@@ -18,7 +18,12 @@ app.get('/user', FBAuth, getAuthenticatedUser); //@access: Private //@desc: get 
 
 //Quip's routes
 app.get('/quips', getAllQuips);//@access: Public //@desc: Get all quips //@route: GET api/quips
-app.post('/quips', FBAuth, postQuip); //@access: Private //@desc: Post a quip //@route: POST api/quips
+app.post('/quip', FBAuth, postQuip); //@access: Private //@desc: Post a quip //@route: POST api/quip
+app.get('/quip/:quipId', getQuip); //@access: Public //@desc: Get quip by id //@route: GET api/quip
+//TODO: delete quip
+//TODO: like a quip
+//TODO: unlike a quip
+app.post('/quip/:quipId/comment', FBAuth, commentOnQuip); //@access: Public //@desc: Get quip by id //@route: GET api/quip
 
 
 exports.api = functions.https.onRequest(app);

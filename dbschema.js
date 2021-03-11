@@ -19,6 +19,14 @@ let db = {
             likeCount: 5,
             commentCount: 3
         }
+    ],
+    comments: [
+        {
+            userHandle: 'user',
+            quipId: 'fhfgifjgfnbndfk',
+            body: 'how do you think like this',
+            createdAt: '2021-03-07T12:42:01.018Z',
+        }
     ]
 };
 
