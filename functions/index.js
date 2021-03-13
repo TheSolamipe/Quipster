@@ -3,7 +3,7 @@ const functions = require("firebase-functions");
 const app = require('express')();
 
 // importing handlers functions
-const { getAllQuips, postQuip, getQuip, commentOnQuip , likeQuip, unLikeQuip} = require("./handlers/quips");
+const { getAllQuips, postQuip, getQuip, commentOnQuip , likeQuip, unLikeQuip, deleteQuip} = require("./handlers/quips");
 const { signUp, logIn, uploadImage, addUserDetails, getAuthenticatedUser } = require("./handlers/users");
 
 // importing user authentication function
@@ -20,10 +20,10 @@ app.get('/user', FBAuth, getAuthenticatedUser); //@access: Private //@desc: get 
 app.get('/quips', getAllQuips);//@access: Public //@desc: Get all quips //@route: GET api/quips
 app.post('/quip', FBAuth, postQuip); //@access: Private //@desc: Post a quip //@route: POST api/quip
 app.get('/quip/:quipId', getQuip); //@access: Public //@desc: Get quip by id //@route: GET api/quip
-//TODO: delete quip
 app.get('/quip/:quipId/unlike', FBAuth, unLikeQuip); //@access: Private //@desc: Unlike a quip //@route: GET api/quip/:quipId/unlike
 app.get('/quip/:quipId/like', FBAuth, likeQuip); //@access: Private //@desc: Like a quip //@route: GET api/quip/:quipId/like
 app.post('/quip/:quipId/comment', FBAuth, commentOnQuip); //@access: Private //@desc: Comment on Quip //@route: GET api/quip/:quipId/comment
+app.delete('/quip/:quipId', FBAuth, deleteQuip) //@access: Private //@desc: delete a quip //@route: GET api/quip/:quipId
 
 
 exports.api = functions.https.onRequest(app);

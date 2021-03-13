@@ -190,3 +190,26 @@ exports.unLikeQuip = (req,res) =>{
             res.status(500).json({ error: err.code})
         })
 };
+
+//delete a quip
+exports.deleteQuip = (req, res) =>{
+    const document = db.doc(`/Quips/${req.params.quipId}`);
+    document.get()
+        .then(doc => {
+            if(!doc.exists){
+                return res.status(404).json({ error: 'Quip not found'});
+            }
+            if(doc.data().userHandle !== req.user.userHandle){
+                return res.status(403).json({ error: 'Unauthorized'});
+            }else{
+                return document.delete();
+            }
+        })
+        .then(()=> {
+            res.json({ message: 'Quip deleted successfully'});
+        })
+        .catch(err => {
+            console.error(err);
+            return res.status(500).json({ error: err});
+        })
+}
