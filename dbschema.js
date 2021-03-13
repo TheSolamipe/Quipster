@@ -27,6 +27,16 @@ let db = {
             body: 'how do you think like this',
             createdAt: '2021-03-07T12:42:01.018Z',
         }
+    ],
+    notifications: [
+        {
+            recipient: 'user',
+            sender: 'john',
+            read: 'true | false',
+            screamId: 'kdggrifvnvkd5dkfj',
+            type: 'like | comment',
+            createdAt: '2019-03-15T10:59:52.789Z'
+        }
     ]
 };
 
