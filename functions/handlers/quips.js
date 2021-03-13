@@ -32,12 +32,18 @@ exports.postQuip = (req,res)=>{
     const newQuip = {
         body,
         userHandle: req.user.userHandle,
-        createdAt: new Date().toISOString()
+        userImage: req.user.imageUrl,
+        createdAt: new Date().toISOString(),
+        likeCount: 0,
+        commentCount: 0
     };
 
     db.collection('Quips').add(newQuip)
         .then(doc=> {
-            res.json({ message: `document ${doc.id} created successfully`})
+            const resQuip = newQuip;
+            resQuip.quipId = doc.id;
+            res.json(resQuip)
+            // res.json({ message: `document ${doc.id} created successfully`})
         })
         .catch(err => {
             res.status(500).json({ error: 'something went wrong'});
@@ -90,6 +96,9 @@ exports.commentOnQuip = (req, res) =>{
             if(!doc.exists){
                 return res.status(404).json({ error: 'Quip not found'});
             }
+            return doc.ref.update({ commentCount: doc.data().commentCount + 1});
+        })
+        .then(()=> {
             return db.collection('comments').add(newComment);
         })
         .then(()=>{
@@ -100,3 +109,84 @@ exports.commentOnQuip = (req, res) =>{
             res.status(500).json({ error: 'Something went wrong'});
         })
 }
+
+//like a quip
+exports.likeQuip = (req, res) =>{
+    const likeDocument = db.collection('likes').where('userHandle', '==', req.user.userHandle)
+        .where('quipId', '==', req.params.quipId).limit(1);
+
+    const quipDocument = db.doc(`/Quips/${req.params.quipId}`);
+
+    let quipData;
+    quipDocument.get()
+        .then(doc => {
+            if(doc.exists){
+                quipData = doc.data();
+                quipData.quipId = doc.id;
+                return likeDocument.get();
+            }else{
+                return res.status(404).json({ error: 'Quip not found'});
+            }
+        })
+        .then(data =>{
+            if(data.empty){
+                return db.collection('likes').add({
+                    quipId: req.params.quipId,
+                    userHandle: req.user.userHandle,
+                    createdAt: new Date().toISOString(),
+                })
+                .then(() => {
+                    quipData.likeCount++
+                    return quipDocument.update({ likeCount: quipData.likeCount});
+                })
+                .then(() =>{
+                    return res.json(quipData);
+                })
+            } else {
+                return res.status(400).json({ error: ' Quip already liked'});
+            }
+        })
+        .catch(err => {
+            console.error(err)
+            res.status(500).json({ error: err.code})
+        })
+}
+
+//unlike liked quip
+exports.unLikeQuip = (req,res) =>{
+    const unlikeDocument = db.collection('likes').where('userHandle', '==', req.user.userHandle)
+        .where('quipId', '==', req.params.quipId).limit(1);
+
+    const quipDocument = db.doc(`/Quips/${req.params.quipId}`);
+
+    let quipData;
+    quipDocument.get()
+        .then(doc => {
+            if(doc.exists){
+                quipData = doc.data();
+                quipData.quipId = doc.id;
+                return unlikeDocument.get();
+            }else{
+                return res.status(404).json({ error: 'Quip not found'});
+            }
+        })
+        .then(data =>{
+            if(data.empty){
+                return res.status(400).json({ error: ' Quip not liked'});
+               
+            } else {
+                return db.doc(`/likes/${data.docs[0].id}`).delete()
+                    .then(() =>{
+                        quipData.likeCount--;
+                        return quipDocument.update({ likeCount: quipData.likeCount});
+                    })
+                    .then(()=>{
+                        return res.json(quipData);
+                    })
+            }
+        })
+        .catch(err => {
+            console.error(err)
+            res.status(500).json({ error: err.code})
+        })
+};
