@@ -34,9 +34,9 @@ exports.api = functions.https.onRequest(app);
 //TODO: TEST NOTIFICATION FUNCTIONS
 exports.createNotificationOnLike = functions.firestore.document('likes/{id}')
     .onCreate((snapshot) =>{
-        db.doc(`/Quips/${snapshot.data().quipId}`).get()
+        return db.doc(`/Quips/${snapshot.data().quipId}`).get()
             .then(doc => {
-                if(doc.exists){
+                if(doc.exists && doc.data().userHandle !== snapshot.data().userHandle){
                     return db.doc(`/notifications/${snapshot.id}`).set({
                         createdAt: new Date().toISOString(),
                         recipient: doc.data().userHandle,
@@ -47,22 +47,14 @@ exports.createNotificationOnLike = functions.firestore.document('likes/{id}')
                     });
                 }
             })
-            .then(() =>{
-                return;
-            })
-            .catch(err =>{
-                console.error(err);
-                return;
-            })
+            .catch(err =>
+                console.error(err))
     });
 
 exports.deleteNotificationOnUnlike = functions.firestore.document('likes/{id}')
     .onDelete((snapshot) =>{
-        db.doc(`/notifications/${snapshot.id}`)
+        return db.doc(`/notifications/${snapshot.id}`)
             .delete()
-            .then(()=>{
-                return;
-            })
             .catch(err =>{
                 console.error(err);
                 return;
@@ -71,9 +63,9 @@ exports.deleteNotificationOnUnlike = functions.firestore.document('likes/{id}')
 
 exports.createNotificationOnComment = functions.firestore.document('comments/{id}')
     .onCreate((snapshot) =>{
-        db.doc(`/Quips/${snapshot.data().quipId}`).get()
+        return db.doc(`/Quips/${snapshot.data().quipId}`).get()
             .then(doc => {
-                if(doc.exists){
+                if(doc.exists && doc.data().userHandle !== snapshot.data().userHandle){
                     return db.doc(`/notifications/${snapshot.id}`).set({
                         createdAt: new Date().toISOString(),
                         recipient: doc.data().userHandle,
@@ -84,11 +76,54 @@ exports.createNotificationOnComment = functions.firestore.document('comments/{id
                     });
                 }
             })
-            .then(() =>{
-                return;
-            })
             .catch(err =>{
                 console.error(err);
                 return;
             })
     });
+
+exports.onUserImageChange = functions.firestore.document('/users/{userId}')
+    .onUpdate((change) =>{
+        console.log(change.before.data());
+        console.log(change.after.data());
+        if(change.before.data().imageUrl !== change.after.data().imageUrl){
+            console.log('image has changed');
+            let batch =  db.batch();
+        return db.collection('Quips').where('userHandle', '==', change.before.data().userHandle).get()
+            .then((data) =>{
+                data.forEach(doc => {
+                    const quip = db.doc(`/Quips/${doc.id}`)
+                    batch.update(quip, {userImage : change.after.data().imageUrl});
+                })
+                return batch.commit();
+            });
+        }else return true;
+    });
+
+exports.onQuipDeleted = functions.firestore.document('/Quips/{quipId}')
+    .onDelete((snapshot, context) =>{
+        const quipId = context.params.quipId;
+        const batch = db.batch();
+        return db.collection('comments').where('quipId', '==', quipId).get()
+            .then(data => {
+                data.forEach(doc =>{
+                    batch.delete(db.doc(`/comments/${doc.id}`));
+                })
+                return db.collection('likes').where('sreamId', '==', screamId).get();
+            })
+            .then(data => {
+                data.forEach(doc =>{
+                    batch.delete(db.doc(`/likes/${doc.id}`));
+                })
+                return db.collection('notifications').where('sreamId', '==', screamId).get();
+            })
+            .then(data => {
+                data.forEach(doc =>{
+                    batch.delete(db.doc(`/notifications/${doc.id}`));
+                })
+                return batch.commit();
+            })
+            .catch(err =>{
+                console.error(err);
+            })
+    })
