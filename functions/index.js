@@ -1,5 +1,5 @@
 const functions = require("firebase-functions");
-
+const cors = require("cors");
 const app = require('express')();
 const db = require('./util/admin');
 
@@ -9,6 +9,22 @@ const { signUp, logIn, uploadImage, addUserDetails, getAuthenticatedUser, getUse
 
 // importing user authentication function
 const {FBAuth} = require('./helpers/userAuthenticator');
+
+//CORS middleware
+//applying CORS middleware
+app.use(
+    cors({
+      allowedHeaders: [
+        "sessionId",
+        "Content-Type",
+        "Origin, X-Requested-With, Accept, Authorization, remember-me, type",
+      ],
+      exposedHeaders: ["sessionId, Authorization"],
+      origin: "*",
+      methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+      preflightContinue: false,
+    })
+  );  
 
 //User's routes
 app.post('/signup', signUp); //@access: Public //@desc: Sign up //@route: POST api/signup
