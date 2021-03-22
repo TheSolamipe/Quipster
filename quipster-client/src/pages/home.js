@@ -21,7 +21,7 @@ class home extends Component {
     render() {
         let recentQuipsMarkup = this.state.quips ? (
             this.state.quips.map(quip => 
-                        <Quip quip={quip} key={quip.id} />)
+                        <Quip quip={quip} key={quip.quipId} />)
         ) : <p>Loading......</p>
         return (
             <div>
