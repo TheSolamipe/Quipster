@@ -10,8 +10,8 @@ const { signUp, logIn, uploadImage, addUserDetails, getAuthenticatedUser, getUse
 // importing user authentication function
 const {FBAuth} = require('./helpers/userAuthenticator');
 
-//CORS middleware
-//applying CORS middleware
+// CORS middleware
+// applying CORS middleware
 app.use(
     cors({
       allowedHeaders: [
@@ -48,7 +48,7 @@ app.delete('/quip/:quipId', FBAuth, deleteQuip) //@access: Private //@desc: dele
 exports.api = functions.https.onRequest(app);
 
 //TODO: TEST NOTIFICATION FUNCTIONS
-exports.createNotificationOnLike = functions.firestore.document('likes/{id}')
+exports.createNotificationOnLike = functions.firestore.document('/likes/{id}')
     .onCreate((snapshot) =>{
         return db.doc(`/Quips/${snapshot.data().quipId}`).get()
             .then(doc => {
@@ -67,7 +67,7 @@ exports.createNotificationOnLike = functions.firestore.document('likes/{id}')
                 console.error(err))
     });
 
-exports.deleteNotificationOnUnlike = functions.firestore.document('likes/{id}')
+exports.deleteNotificationOnUnlike = functions.firestore.document('/likes/{id}')
     .onDelete((snapshot) =>{
         return db.doc(`/notifications/${snapshot.id}`)
             .delete()
@@ -77,7 +77,7 @@ exports.deleteNotificationOnUnlike = functions.firestore.document('likes/{id}')
             })
     });
 
-exports.createNotificationOnComment = functions.firestore.document('comments/{id}')
+exports.createNotificationOnComment = functions.firestore.document('/comments/{id}')
     .onCreate((snapshot) =>{
         return db.doc(`/Quips/${snapshot.data().quipId}`).get()
             .then(doc => {
@@ -116,7 +116,7 @@ exports.onUserImageChange = functions.firestore.document('/users/{userId}')
         }else return true;
     });
 
-exports.onQuipDeleted = functions.firestore.document('/Quips/{quipId}')
+exports.onQuipDelete = functions.firestore.document('/Quips/{quipId}')
     .onDelete((snapshot, context) =>{
         const quipId = context.params.quipId;
         const batch = db.batch();
@@ -125,13 +125,13 @@ exports.onQuipDeleted = functions.firestore.document('/Quips/{quipId}')
                 data.forEach(doc =>{
                     batch.delete(db.doc(`/comments/${doc.id}`));
                 })
-                return db.collection('likes').where('sreamId', '==', screamId).get();
+                return db.collection('likes').where('quipId', '==', quipId).get();
             })
             .then(data => {
                 data.forEach(doc =>{
                     batch.delete(db.doc(`/likes/${doc.id}`));
                 })
-                return db.collection('notifications').where('sreamId', '==', screamId).get();
+                return db.collection('notifications').where('quipId', '==', quipId).get();
             })
             .then(data => {
                 data.forEach(doc =>{
