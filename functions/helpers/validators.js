@@ -9,6 +9,7 @@ exports.validateSignUpData = (data) =>{
     }
 
     if(isEmpty(data.password))errors.password = 'Must not be empty';
+    if(isEmpty(data.confirmPassword))errors.confirmPassword = 'Must not be empty';
     if(data.password !== data.confirmPassword) errors.confirmPassword = 'Passwords must match';
     if(isEmpty(data.userHandle)) errors.userHandle = 'Must not be empty';
 
