@@ -36,7 +36,7 @@ class login extends Component {
             this.setState({errors: nextProps.UI.errors});
         }   
     }
-    
+
     handleSubmit = (event)=>{
         event.preventDefault();
         const userData = {
@@ -59,7 +59,7 @@ class login extends Component {
             <Grid container className={classes.form}>
                 <Grid item  sm/>
                 <Grid item sm>
-                    <image src={AppIcon} alt="smiley image" className={classes.image} />
+                    <img src={AppIcon} alt="smiley" className={classes.image} />
                     <Typography variant="h3" className={classes.pageTitle}>
                         Login 
                     </Typography>
