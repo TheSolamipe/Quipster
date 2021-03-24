@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import Grid from '@material-ui/core/Grid';
 
 import Quip from '../components/Quip/index';
+import Profile from '../components/Profile/index';
 
 import axios from 'axios';
 
@@ -30,7 +31,7 @@ class home extends Component {
                         {recentQuipsMarkup}
                     </Grid>
                     <Grid item sm={4} xs={12}>
-                        <p>Profile.....</p>
+                        <Profile />
                     </Grid>
                 </Grid>
             </div>
