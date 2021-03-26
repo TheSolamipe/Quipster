@@ -2,7 +2,7 @@ import React, { Component, Fragment } from 'react'
 import PropTypes from 'prop-types';
 import {Link} from 'react-router-dom';
 import dayjs from 'dayjs';
-
+import EditDetails from './../EditDetails/index';
 
 //MUI stuff
 import withStyles from '@material-ui/core/styles/withStyles';
@@ -18,10 +18,11 @@ import LocationOn from '@material-ui/icons/LocationOn';
 import LinkIcon from '@material-ui/icons/Link';
 import CalendarToday from '@material-ui/icons/CalendarToday';
 import EditIcon from '@material-ui/icons/Edit';
+import KeyboardReturn from '@material-ui/icons/KeyboardReturn';
 
 //Redux stuff
 import {connect} from 'react-redux';
-import {uploadImage} from './../../redux/actions/userActions';
+import {uploadImage, logoutUser} from './../../redux/actions/userActions';
 
 
 const styles = (theme) =>({
@@ -84,6 +85,9 @@ class Profile extends Component {
         const fileInput = document.getElementById('imageUpload');
         fileInput.click();
     }
+    handleLogout =()=>{
+        this.props.logoutUser()
+    }
     render() {
         const {classes, 
                 user:{
@@ -131,6 +135,12 @@ class Profile extends Component {
                         <CalendarToday color='primary' />{' '}
                         <span>Joined {dayjs(credentials.createdAt).format('MMM YYYY')}</span>
                     </div>
+                    <Tooltip title="logout" placement="top">
+                        <IconButton onClick={this.handleLogout}>
+                            <KeyboardReturn color='primary' />
+                        </IconButton>
+                    </Tooltip>
+                    <EditDetails />
                 </div>
             </Paper>
         ) : (
@@ -156,7 +166,8 @@ class Profile extends Component {
 Profile.propTypes ={
     user: PropTypes.object.isRequired,
     classes: PropTypes.object.isRequired,
-    uploadImage: PropTypes.func.isRequired
+    uploadImage: PropTypes.func.isRequired,
+    logoutUser: PropTypes.func.isRequired,
 }; 
 
 const mapStateToProps = (state) =>({
@@ -164,6 +175,6 @@ const mapStateToProps = (state) =>({
 });
 
 const mapActionsToProps = {
-    uploadImage
+    uploadImage, logoutUser
 }
 export default connect(mapStateToProps, mapActionsToProps)(withStyles(styles)(Profile));
