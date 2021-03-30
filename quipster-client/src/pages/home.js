@@ -1,27 +1,22 @@
 import React, { Component } from 'react';
 import Grid from '@material-ui/core/Grid';
+import PropTypes from 'prop-types';
 
 import Quip from '../components/Quip/index';
 import Profile from '../components/Profile/index';
 
 import axios from 'axios';
+import {connect} from 'react-redux';
+import { getQuips } from '../redux/actions/dataActions';
 
 class home extends Component {
-    state= {
-        quips: null
-    }
     componentDidMount(){
-        axios.get('/quips')
-            .then(res =>{
-                this.setState({
-                    quips: res.data
-                })
-            })
-            .catch(err => console.log(err));
+        this.props.getQuips()
     }
     render() {
-        let recentQuipsMarkup = this.state.quips ? (
-            this.state.quips.map(quip => 
+        const { quips, loading } = this.props.data;
+        let recentQuipsMarkup = !loading ? (
+            quips.map(quip => 
                         <Quip quip={quip} key={quip.quipId} />)
         ) : <p>Loading......</p>
         return (
@@ -39,4 +34,13 @@ class home extends Component {
     }
 }
 
-export default home
+home.propTypes ={
+    getQuips: PropTypes.func.isRequired,
+    data: PropTypes.object.isRequired
+}
+
+const mapStateToProps = (state) =>({
+    data: state.data
+})
+
+export default connect(mapStateToProps, {getQuips})(home)

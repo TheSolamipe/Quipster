@@ -16,7 +16,7 @@ export default function(state= initialState, action){
         case SET_QUIPS :
             return {
                 ...state,
-                screams: action.payload,
+                quips: action.payload,
                 loading: false
             }
         case LIKE_QUIP:
@@ -26,6 +26,7 @@ export default function(state= initialState, action){
             return {
                 ...state
             }
-
+        default: 
+            return state;
     }
 }

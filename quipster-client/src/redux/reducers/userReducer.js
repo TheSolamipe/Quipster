@@ -34,7 +34,7 @@ export default function(state= initialState, action){
                 likes: [
                     ...state.likes,
                     {
-                        userHandle: state.userData.userHandle,
+                        userHandle: state.userData.credentials.userHandle,
                         quipId: action.payload.quipId
                     }
                 ]
@@ -43,7 +43,7 @@ export default function(state= initialState, action){
             return {
                 ...state,
                 likes: state.likes.filter(
-                    like => like.quipId === action.payload.quipId
+                    like => like.quipId !== action.payload.quipId
                 )
             };
         default: 

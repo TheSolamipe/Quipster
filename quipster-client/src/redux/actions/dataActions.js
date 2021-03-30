@@ -20,7 +20,7 @@ export const getQuips =()=>(dispatch)=>{
 
 //like a quip
 export const likeQuip = (quipId)=> dispatch => {
-    axios.get(`/quip/${quipId}/like`)
+    axios.get(`http://localhost:5000/quipster-b5cbe/us-central1/api/quip/${quipId}/like`)
         .then(res => {
             dispatch({
                 type: LIKE_QUIP,
@@ -32,7 +32,7 @@ export const likeQuip = (quipId)=> dispatch => {
 
 //unlike a quip
 export const unlikeQuip = (quipId)=> dispatch => {
-    axios.get(`/quip/${quipId}/unlike`)
+    axios.get(`http://localhost:5000/quipster-b5cbe/us-central1/api/quip/${quipId}/unlike`)
         .then(res => {
             dispatch({
                 type: UNLIKE_QUIP,
